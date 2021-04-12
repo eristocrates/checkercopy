@@ -1,22 +1,17 @@
 package checkers.gui;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Point;
-import java.awt.geom.Rectangle2D;
-
 import checkers.model.Board;
-import checkers.model.Board.Square;
 import checkers.model.Checker;
 import checkers.model.CheckerSide;
 import checkers.model.Piece;
 
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
+
 public class PiecePaintStrategyCheckers implements PiecePaintStrategy {
     private final Board board;
 
-    // The rules say that pieces go on the dark squares.
-    // But then the black pieces do not show up as well.
-    private final boolean piecesOnDark = true;
+    private final boolean piecesOnDark = true; // idk why there's an option for playing pieces on white, might remove later
 
     public PiecePaintStrategyCheckers(Board b) {
         board = b;
@@ -24,16 +19,16 @@ public class PiecePaintStrategyCheckers implements PiecePaintStrategy {
 
     @Override
     public Color getColorForPoint(Point point) {
-        Square square = board.getSquare(point);
+        Board.Square square = board.getSquare(point);
 
         // The official rules say pieces go on dark.
-        if (square.equalsType(Square.NOT_IN_PLAY)) {
+        if (square.equalsType(Board.Square.NOT_IN_PLAY)) { // might add flag for black/white or black/red or green/white later if time permits
             if (piecesOnDark) {
                 return Color.WHITE;
             } else {
                 return Color.BLACK;
             }
-        } else if (square.equalsType(Square.IN_PLAY)) {
+        } else if (square.equalsType(Board.Square.IN_PLAY)) {
             if (piecesOnDark) {
                 return Color.BLACK;
             } else {
@@ -43,6 +38,7 @@ public class PiecePaintStrategyCheckers implements PiecePaintStrategy {
             throw new RuntimeException("cannot get color for point=" + point + " square=" + square);
         }
     }
+
     public Checker getChecker(Piece piece) {
         return (Checker) piece;
     }
@@ -51,7 +47,7 @@ public class PiecePaintStrategyCheckers implements PiecePaintStrategy {
         return getColorForChecker(getChecker(piece));
     }
 
-    public Color getColorForChecker(Checker piece) {
+    public Color getColorForChecker(Checker piece) { // might add flag for black v red or red v white later, depending on time
         if (piece.isSide(CheckerSide.BLACK)) {
             return Color.BLACK;
         } else if (piece.isSide(CheckerSide.RED)) {
@@ -95,5 +91,16 @@ public class PiecePaintStrategyCheckers implements PiecePaintStrategy {
             g.drawString(marker, atx, aty);
         }
     }
+
+
+
+
+
+
+
+
+
+
+
 
 }

@@ -1,11 +1,9 @@
 package checkers.model;
 
-import java.awt.Point;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import checkers.model.Board.Square;
 
 public class GameStrategyCheckers implements GameStrategy {
 
@@ -16,6 +14,8 @@ public class GameStrategyCheckers implements GameStrategy {
         board = ret;
     }
 
+    // there's a string that represents the entire pieces on boardstate and this seperates the string
+    // into an array of each relevant substring, i.e. p1 string, blank middle string,  p2 string
     @Override
     public List<String> splitBoardStateString(String s) {
         String[] split = s.split("");
@@ -38,15 +38,15 @@ public class GameStrategyCheckers implements GameStrategy {
     }
 
     @Override
-    public String convertPointToDumpString(Point point) {
+    public String convertPointToDumpString(Point point) { // used for debugging
         String cell;
 
-        final Square square = getSquare(point);
-        if (square.equalsType(Square.NOT_VALID_COORDINATES)) {
+        final Board.Square square = getSquare(point); // square refers to the enum type of a point's state
+        if (square.equalsType(Board.Square.NOT_VALID_COORDINATES)) {
             cell = "<ERROR at point=" + point;
-        } else if (square.equalsType(Square.NOT_IN_PLAY)) {
+        } else if (square.equalsType(Board.Square.NOT_IN_PLAY)) {
             cell = " ";
-        } else if (square.equalsType(Square.IN_PLAY)) {
+        } else if (square.equalsType(Board.Square.IN_PLAY)) {
             Checker checker = getPiece(point);
             if (checker == null) {
                 cell = "_";
@@ -77,25 +77,25 @@ public class GameStrategyCheckers implements GameStrategy {
         return (Checker) board.getPiece(point);
     }
 
-    private Square getSquare(Point point) {
+    private Board.Square getSquare(Point point) {
         return board.getSquare(point);
     }
 
     @Override
-    public boolean canMovePieceAtPoint(Point point) {
+    public boolean canMovePieceAtPoint(Point point) { // very important must fix later
         // TODO: better implementation - pay attention to which side has the turn,
         //       pay attention to "must move another piece" rules
         return (getPiece(point) != null);
     }
 
-
-    /**
-     * @param point to check
-     * @return true IFF the point is IN_PLAY and is EMPTY
-     */
-    public boolean isAvailableTargetForMove(Point point) {
+    // maybe mirror this structure for an isAvailableTargetForCaptureToMake
+    public boolean isAvailableTargetForMove(Point point) { // checks if point is in play and empty
         final boolean ret;
-        if (Square.IN_PLAY.equalsType(getSquare(point))) {
+        // later should check if either
+        // should check if target is one square away
+        // should check if target involves a capture
+        // should check for backwards motion with an allowance flag for kings
+        if (Board.Square.IN_PLAY.equalsType(getSquare(point))) {
             if (null == getPiece(point)) {
                 ret = true;
             } else {
@@ -109,7 +109,7 @@ public class GameStrategyCheckers implements GameStrategy {
     }
 
     @Override
-    public void movePiece(Point from, Point to) {
+    public void movePiece(Point from, Point to) { // handles movement of one point to another
 
         final Piece piece = getPiece(from);
         if (piece != null) {
@@ -119,13 +119,18 @@ public class GameStrategyCheckers implements GameStrategy {
             } else {
                 throw new RuntimeException("Programmer error - point not available, point=" + to);
             }
+            // likely could add an if for a capture here later
+            // could also alternate flags for turn completion?
+            // king promotion could def happen here
         } else {
             throw new RuntimeException("Programmer error - no piece at original, point=" + from);
         }
     }
 
     @Override
-    public boolean isValidToMove(Point from, Point to) {
+    public boolean isValidToMove(Point from, Point to) { // checks if a piece is moveable
+        // later should check if piece is surrounded by other pieces & the border
+        // maybe enforce turn order here? an alternating flag should work
         if (getPiece(from) != null) {
             if (isAvailableTargetForMove(to)) {
                 //  TODO: rule check too

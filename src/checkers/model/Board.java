@@ -31,6 +31,20 @@ public class Board {
         }
         return ret;
     }
+    public java.util.List<Point> generatePointsInPlay() { // returns container full of all points for dark squares on the board
+        List<Point> ret = new ArrayList<>(); // container for all points
+
+        for (int y = 1; y <= getSizeY(); y++) { // numbering starting in upper-left: (1,1) (2,1) ... (x,y) (1,2) ... ... (x,y)
+            for (int x = 1; x <= getSizeX(); x++) {
+                Point point = new Point(x, y);
+                ret.add(point);
+                if (y % 2 == 0){
+                    x++;
+                }
+            }
+        }
+        return ret;
+    }
 
     public enum Square { // Square is an enum for the state of the square
         NOT_VALID_COORDINATES,  // 1) NOT_VALID_COORDINATES --outside the bounding rectangle

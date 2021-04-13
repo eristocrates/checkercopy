@@ -10,7 +10,7 @@ public class Board {
     private final int sizeY;
 
     private Map<Point, Square> point2Square = new HashMap<>(); // holds state of all squares accessed via point
-    private Map<Point, Piece> point2Piece = new HashMap<>(); // holds piece info of a square accessed via point
+    private final Map<Point, Piece> point2Piece = new HashMap<>(); // holds piece info of a square accessed via point
 
     private final GameStrategy gameStrategy;
 
@@ -32,10 +32,10 @@ public class Board {
         return ret;
     }
 
-    public static enum Square { // Square is an enum for the state of the square
+    public enum Square { // Square is an enum for the state of the square
         NOT_VALID_COORDINATES,  // 1) NOT_VALID_COORDINATES --outside the bounding rectangle
-        NOT_IN_PLAY,            // 2) NOT_IN_PLAY -- inside the bounding rectangle, but is a "hole"
-        IN_PLAY;                // 3) IN_PLAY -- inside and valid
+        LIGHT,            // 2) NOT_IN_PLAY -- inside the bounding rectangle, but is a light color square
+        DARK;                // 3) IN_PLAY -- inside and valid
 
 
         public boolean equalsType(Square other) {
@@ -44,11 +44,7 @@ public class Board {
     }
 
     public Square getSquare(Point point) { // gets state of square via it's point
-        if (point2Square.containsKey(point)) {
-            return point2Square.get(point);
-        } else {
-            return Square.NOT_VALID_COORDINATES;
-        }
+        return point2Square.getOrDefault(point, Square.NOT_VALID_COORDINATES);
     }
 
     public Piece getPiece(Point point) { // gets info of the piece at a given point
@@ -65,14 +61,15 @@ public class Board {
 
     public void place(Piece piece, Point point) { // places a piece at a target point
         checkPoint(point);
-        putPoint2Piece(point, piece);
+        if (point2Piece.containsKey(point)) {
+            throw new RuntimeException("Point already contains a piece");
+        } else {
+            putPoint2Piece(point, piece);
+        }
 
         // DESIGN: allow a placement to potentially "remove" a piece, because
         //         we are not going to check.
         // If we were going to check, it would be:
-        // if (point2Checker.containsKey(point)) {
-        //   throw new RuntimeException("Point already contains a piece");
-        // }
     }
 
 
@@ -162,7 +159,7 @@ public class Board {
         List<Piece> copy = new ArrayList<>(pieces);
         for (Point point : generatePointsTopDownLeftRight()) {
             Square val = getSquare(point);
-            if (Square.IN_PLAY.equalsType(val)) {
+            if (Square.DARK.equalsType(val)) {
                 Piece piece = copy.remove(0); // removing from the top seems better suited to another container type but maybe later oh well lol
 
                 // even if piece is null, "place" it (to clear that Point)

@@ -11,8 +11,6 @@ import java.awt.geom.Rectangle2D;
 public class PiecePaintStrategyCheckers implements PiecePaintStrategy {
     private final Board board;
 
-    private final boolean piecesOnDark = true; // idk why there's an option for playing pieces on white, might remove later
-
     public PiecePaintStrategyCheckers(Board b) {
         board = b;
     }
@@ -22,13 +20,15 @@ public class PiecePaintStrategyCheckers implements PiecePaintStrategy {
         Board.Square square = board.getSquare(point);
 
         // The official rules say pieces go on dark.
-        if (square.equalsType(Board.Square.NOT_IN_PLAY)) { // might add flag for black/white or black/red or green/white later if time permits
+
+        boolean piecesOnDark = true;// idk why there's an option for playing pieces on white, might remove later
+        if (square.equalsType(Board.Square.LIGHT)) { // might add flag for black/white or black/red or green/white later if time permits
             if (piecesOnDark) {
                 return Color.WHITE;
             } else {
                 return Color.BLACK;
             }
-        } else if (square.equalsType(Board.Square.IN_PLAY)) {
+        } else if (square.equalsType(Board.Square.DARK)) {
             if (piecesOnDark) {
                 return Color.BLACK;
             } else {

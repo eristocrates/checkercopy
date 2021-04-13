@@ -5,7 +5,7 @@ public class Checker implements Piece {
 
     private final int checkerId = globalCheckerId++;
     private CheckerType checkerType;
-    private final CheckerSide checkerSide;
+    private CheckerSide checkerSide;
 
     public Checker(CheckerType checkerType, CheckerSide checkerSide) { // constructor
         super();
@@ -17,14 +17,7 @@ public class Checker implements Piece {
         return checkerSide;
     }
 
-    public CheckerType getType() {
-        return checkerType;
-    }
-
     // really need a void make king, will add later
-    public void setKing(){
-        this.checkerType = CheckerType.KING;
-    }
     public boolean isKing() {
         return CheckerType.KING.equalsType(checkerType);
     }
@@ -56,8 +49,9 @@ public class Checker implements Piece {
         if (getClass() != obj.getClass()) // mismatched classes
             return false;
         Checker other = (Checker) obj;
-
-        return checkerId == other.checkerId; // different ids
+        if (checkerId != other.checkerId) // different ids
+            return false;
+        return true;
     }
 
     public boolean equalsType(Checker checker) {
@@ -71,31 +65,26 @@ public class Checker implements Piece {
         final CheckerSide side;
         final CheckerType type;
 
-        switch (s) {
-            case "b" -> {
-                side = CheckerSide.BLACK;
-                type = CheckerType.MAN;
-            }
-            case "r" -> {
-                side = CheckerSide.RED;
-                type = CheckerType.MAN;
-            }
-            case "B" -> {
-                side = CheckerSide.BLACK;
-                type = CheckerType.KING;
-            }
-            case "R" -> {
-                side = CheckerSide.RED;
-                type = CheckerType.KING;
-            }
-            case "-" -> {
-                side = null;
-                type = null;
-            }
-            default -> throw new RuntimeException("Cannot convert '" + s + "' to a piece");
+        if (s.equals("b")) {
+            side = CheckerSide.BLACK;
+            type = CheckerType.REGULAR;
+        } else if (s.equals("r")) {
+            side = CheckerSide.RED;
+            type = CheckerType.REGULAR;
+        } else if (s.equals("B")) {
+            side = CheckerSide.BLACK;
+            type = CheckerType.KING;
+        } else if (s.equals("R")) {
+            side = CheckerSide.RED;
+            type = CheckerType.KING;
+        } else if (s.equals("-")) {
+            side = null;
+            type = null;
+        } else {
+            throw new RuntimeException("Cannot convert '" + s + "' to a piece");
         }
 
-        if (side != null) {
+        if ((side != null) && (type != null)) {
             ret = new Checker(type, side);
         } else {
             ret = null;
@@ -104,7 +93,8 @@ public class Checker implements Piece {
         return ret;
     }
 
-// funtion to promote to king could easily go here later
+
+
 
 
 }

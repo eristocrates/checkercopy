@@ -9,16 +9,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
-import java.io.Serial;
 
 public class BoardPainter extends JComponent {
-    @Serial
     private static final long serialVersionUID = 1L;
-    private final Board board;
+    private Board board;
 
-    private final PiecePaintStrategy piecePainter; // helps with square color
-    private final int currentPieceSize;
-    private final DragHelper dragHelper; // holds relevant drag-drop data
+    private PiecePaintStrategy piecePainter; // helps with square color
+    private int currentPieceSize;
+    private DragHelper dragHelper; // holds relevant drag-drop data
 
 
     public BoardPainter(Board board, PiecePaintStrategy piecePainter) { // constructor
@@ -99,7 +97,8 @@ public class BoardPainter extends JComponent {
     public Point getPointFromGuiXY(int guiX, int guiY) {
         int over = guiX / getSquareSize();
         int down = guiY / getSquareSize();
-        return new Point(over + 1, down + 1);
+        Point ret = new Point(over + 1, down + 1);
+        return ret;
     }
 
     public void drawPiece(Point point, Piece piece, Graphics g) {
@@ -144,8 +143,9 @@ public class BoardPainter extends JComponent {
                 } else {
                     throw new RuntimeException("indrag is true, but dragging is null");
                 }
-            }  // ok, not in drag mode
-
+            } else {
+                // ok, not in drag mode
+            }
 
         }
 
@@ -158,7 +158,11 @@ public class BoardPainter extends JComponent {
         }
 
         public boolean isPieceBeingDragged(Piece piece) {
-            return piece.equals(getPieceBeingDragged());
+            if (piece.equals(getPieceBeingDragged())) {
+                return true;
+            } else {
+                return false;
+            }
         }
         public Point findPointForXY(int guiX, int guiY) {
             return getPointFromGuiXY(guiX, guiY);
@@ -201,8 +205,10 @@ public class BoardPainter extends JComponent {
 
                     if (board.isValidToMove(dragging, point)) {
                         board.movePiece(dragging, point);
-                    }  // nothing  TODO: better option?
-
+                    } else {
+                        // nothing  TODO: better option?
+                    }
+                    // later could handle getting point for
                     dragging = null;
 
                     triggerRepaint();

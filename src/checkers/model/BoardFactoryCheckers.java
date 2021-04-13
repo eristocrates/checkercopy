@@ -30,14 +30,16 @@ public class BoardFactoryCheckers { // factory for making the checker board
         gameStrategy.setBoard(ret);
 
         // it seems everyone agrees that (1,1) is not in play:
-        Board.Square val = Board.Square.LIGHT;
+        Board.Square val = Board.Square.NOT_IN_PLAY;
         for (Point point : ret.generatePointsTopDownLeftRight()) {
             ret.putPoint2Square(point, val);
 
             // "alternate val" covers most cases,
             // but when we come to the end, we stay the same
-            if (point.getX() != size) {
-                val = val.equalsType(Board.Square.LIGHT) ? Board.Square.DARK : Board.Square.LIGHT;
+            if (point.getX() == size) {
+                // nothing
+            } else {
+                val = val.equalsType(Board.Square.NOT_IN_PLAY) ? Board.Square.IN_PLAY : Board.Square.NOT_IN_PLAY;
             }
         }
         // no more modifications to the squares:

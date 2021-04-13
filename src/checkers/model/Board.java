@@ -1,46 +1,29 @@
 package checkers.model;
 
-import java.awt.Point;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+import java.awt.*;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
-/**
- * A Board is a set of Squares. The Board numbers its Squares starting in
- * upper-left: (1,1) (2,1) ... (x,y) (1,2) ... ... (x,y)
- *
- * You can interrogate a Board about (x, y) to find information on a square:
- * 1) NOT_VALID_COORDINATES --outside the bounding rectangle
- * 2) NOT_IN_PLAY -- inside the bounding rectangle, but is a "hole"
- * 3) IN_PLAY -- inside and valid
- *
- */
 public class Board {
+    // dimensions of the board
     private final int sizeX;
     private final int sizeY;
 
-    private Map<Point, Square> point2Square = new HashMap<>();
-    private Map<Point, Piece> point2Piece = new HashMap<>();
+    private Map<Point, Square> point2Square = new HashMap<>(); // holds state of all squares accessed via point
+    private final Map<Point, Piece> point2Piece = new HashMap<>(); // holds piece info of a square accessed via point
 
-    // implements "rules" for the game - i.e. knows about Pieces
     private final GameStrategy gameStrategy;
 
-    public Board(GameStrategy strategy, int x, int y) {
+    public Board(GameStrategy strategy, int x, int y) { // constructor
         gameStrategy = strategy;
         this.sizeX = x;
         this.sizeY = y;
     }
 
-    /**
-     * @return points, top row first,
-     *         e.g. (1,1), (2,1), (3,1) ... (sizeX, 1) (1,2) (2,2) (3,2) (sizeX, 2) .... (sizeX,sizeY)
-     */
-    public List<Point> generatePointsTopDownLeftRight() {
-        List<Point> ret = new ArrayList<>();
+    public java.util.List<Point> generatePointsTopDownLeftRight() { // returns container full of all points for all squares on the board
+        List<Point> ret = new ArrayList<>(); // container for all points
 
-        for (int y = 1; y <= getSizeY(); y++) {
+        for (int y = 1; y <= getSizeY(); y++) { // numbering starting in upper-left: (1,1) (2,1) ... (x,y) (1,2) ... ... (x,y)
             for (int x = 1; x <= getSizeX(); x++) {
                 Point point = new Point(x, y);
                 ret.add(point);
@@ -49,72 +32,65 @@ public class Board {
         return ret;
     }
 
-    public static enum Square {
-        NOT_VALID_COORDINATES, NOT_IN_PLAY, IN_PLAY;
+    public enum Square { // Square is an enum for the state of the square
+        NOT_VALID_COORDINATES,  // 1) NOT_VALID_COORDINATES --outside the bounding rectangle
+        LIGHT,            // 2) NOT_IN_PLAY -- inside the bounding rectangle, but is a light color square
+        DARK;                // 3) IN_PLAY -- inside and valid
+
 
         public boolean equalsType(Square other) {
             return equals(other);
         }
     }
 
-
-    public Square getSquare(Point point) {
-        if (point2Square.containsKey(point)) {
-            return point2Square.get(point);
-        } else {
-            return Square.NOT_VALID_COORDINATES;
-        }
+    public Square getSquare(Point point) { // gets state of square via it's point
+        return point2Square.getOrDefault(point, Square.NOT_VALID_COORDINATES);
     }
 
-    public Piece getPiece(Point point) {
+    public Piece getPiece(Point point) { // gets info of the piece at a given point
         checkPoint(point);
         return getPoint2Piece(point);
     }
 
-    public void checkPoint(Point point) {
+    public void checkPoint(Point point) { // checks if point is valid i.e. within the dimensions of the board
         Square square = getSquare(point);
         if (square.equalsType(Square.NOT_VALID_COORDINATES)) {
             throw new RuntimeException("Invalid coordinates " + point);
         }
     }
 
-    public void place(Piece piece, Point point) {
+    public void place(Piece piece, Point point) { // places a piece at a target point
         checkPoint(point);
+        if (point2Piece.containsKey(point)) {
+            throw new RuntimeException("Point already contains a piece");
+        } else {
+            putPoint2Piece(point, piece);
+        }
 
         // DESIGN: allow a placement to potentially "remove" a piece, because
         //         we are not going to check.
         // If we were going to check, it would be:
-        // if (point2Checker.containsKey(point)) {
-        //   throw new RuntimeException("Point already contains a piece");
-        // }
-
-        putPoint2Piece(point, piece);
     }
 
-    //
-    // It can get messy having internal maps.
-    // So - gather all operations into one area.
-    // This also allows us to open permissions "a bit" for friendly outsiders,
-    //    without having to make the maps completely public.
-    //
 
-    /* default */ Piece getPoint2Piece(Point point) {
+    Piece getPoint2Piece(Point point) { // returns the piece value from the point key inside the point2Piece map
         return point2Piece.get(point);
     }
-    /* default */ void putPoint2Piece(Point point, Piece piece) {
+
+    void putPoint2Piece(Point point, Piece piece) { // adds/updates a piece and it's location (point)
         point2Piece.put(point,  piece);
     }
-    /* default*/ void removePoint2Piece(Point point) {
+    void removePoint2Piece(Point point) { // removes a point and it's associated piece
         point2Piece.remove(point);
     }
-    /* default */ void putPoint2Square(Point point, Square square) {
+    void putPoint2Square(Point point, Square square) { // adds/updates a piece and it's state
         point2Square.put(point, square);
     }
 
-    public String dump() {
+    public String dump() { // not directly used, but good for testing/debugging.
         StringBuilder sb = new StringBuilder();
 
-        for (Point point : generatePointsTopDownLeftRight()) {
+        for (Point point : generatePointsTopDownLeftRight()) { // loops through every point/square on the board
             final String cell = gameStrategy.convertPointToDumpString(point);
 
             sb.append(cell);
@@ -135,8 +111,6 @@ public class Board {
         return sizeY;
     }
 
-
-
     public void movePiece(Point from, Point to) {
         gameStrategy.movePiece(from, to);
     }
@@ -156,12 +130,8 @@ public class Board {
         point2Square = Collections.unmodifiableMap(point2Square);
     }
 
-    /**
-     * Load all IN_PLAY squares with (newly created) pieces.
-     *
-     * @param s like "bbbbbbbbbbbb--------wwwwwwwwwwww"
-     */
-    public final void loadPiecesFromString(String s) {
+    public final void loadPiecesFromString(String s) { // example s: "bbbbbbbbbbbb--------wwwwwwwwwwww"
+
         List<String> piecesString = fromString(s);
         List<Piece> pieces = fromList(piecesString);
         loadPieces(pieces);
@@ -185,16 +155,12 @@ public class Board {
     private Piece createFromSingleString(String s) {
         return gameStrategy.createPieceFromSingleString(s);
     }
-
-
-
-
     public final void loadPieces(List<Piece> pieces) {
         List<Piece> copy = new ArrayList<>(pieces);
         for (Point point : generatePointsTopDownLeftRight()) {
             Square val = getSquare(point);
-            if (Square.IN_PLAY.equalsType(val)) {
-                Piece piece = copy.remove(0);
+            if (Square.DARK.equalsType(val)) {
+                Piece piece = copy.remove(0); // removing from the top seems better suited to another container type but maybe later oh well lol
 
                 // even if piece is null, "place" it (to clear that Point)
                 place(piece, point);
@@ -204,6 +170,5 @@ public class Board {
             throw new RuntimeException("Programmer error- extra pieces, size=" + copy.size());
         }
     }
-
 
 }

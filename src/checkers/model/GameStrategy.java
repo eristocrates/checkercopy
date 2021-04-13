@@ -18,6 +18,7 @@ public interface GameStrategy {
     boolean canMovePieceAtPoint(Point point);
 
     void movePiece(Point from, Point to);
+    void movePiece(Point from, Point to, Point over); // overload for "defalt parameter"
 
     boolean isValidToMove(Point from, Point to);
 

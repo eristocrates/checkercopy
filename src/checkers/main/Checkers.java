@@ -1,5 +1,4 @@
 package checkers.main;
-import javax.swing.*;
 
 import checkers.gui.BoardPainter;
 import checkers.gui.PiecePaintStrategy;
@@ -7,12 +6,9 @@ import checkers.gui.PiecePaintStrategyCheckers;
 import checkers.model.Board;
 import checkers.model.BoardFactoryCheckers;
 
-/**
- * From http://www.javaworld.com/article/3014190/apis/checkers-anyone.html
- *
- *
- */
-public class Checkers extends JFrame {
+import javax.swing.*;
+
+public class Checkers extends JFrame { // window
     public Checkers(String title) {
         super(title);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -32,28 +28,10 @@ public class Checkers extends JFrame {
 
     public static void main(String[] args) {
 
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                new Checkers("Checkers");
-            }
-        };
+        Runnable r = () -> new Checkers("Checkers");
 
         // which on is more standard?
         // EventQueue.invokeLater(r);
         SwingUtilities.invokeLater(r);
     }
 }
-
-
-/*package checkers.main;
-
-import javax.swing.*;
-
-public class Checkers extends JFrame {
-    public Checkers(String title) {
-        super (title);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-    }
-}
-*/

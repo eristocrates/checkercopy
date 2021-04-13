@@ -1,44 +1,32 @@
 package checkers.gui;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.RenderingHints;
+import checkers.model.Board;
+import checkers.model.Piece;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
-
-import javax.swing.JComponent;
-
-import checkers.model.Board;
-import checkers.model.Piece;
+import java.io.Serial;
 
 public class BoardPainter extends JComponent {
+    @Serial
     private static final long serialVersionUID = 1L;
+    private final Board board;
 
-    private Board board;
+    private final PiecePaintStrategy piecePainter; // helps with square color
+    private final int currentPieceSize;
+    private final DragHelper dragHelper; // holds relevant drag-drop data
 
-    // Helper: decide on square color
-    private PiecePaintStrategy piecePainter;
 
-    private int currentPieceSize;
-
-    // encapsulate all of the "drag" information:
-    private DragHelper dragHelper;
-
-    public BoardPainter(Board board, PiecePaintStrategy piecePainter) {
+    public BoardPainter(Board board, PiecePaintStrategy piecePainter) { // constructor
         super();
         this.board = board;
         this.currentPieceSize = 50;
-
-        // helper aka "strategies"
         this.piecePainter = piecePainter;
-
-        // track dragging, set up listeners, etc.:
-        dragHelper = new DragHelper();
+        dragHelper = new DragHelper(); // track dragging, set up listeners, etc.:
     }
 
     public int getCurrentPieceSize() {
@@ -46,12 +34,11 @@ public class BoardPainter extends JComponent {
     }
 
     public int getSquareSize() {
-        // 25% bigger than piece
-        return (int) (getCurrentPieceSize() * 1.25);
+        return (int) (getCurrentPieceSize() * 1.25); // 25% bigger than piece
     }
 
     @Override
-    public Dimension getPreferredSize() {
+    public Dimension getPreferredSize() { // pretty sure we can fit resizing window here later
         int x = board.getSizeX() * getSquareSize();
         int y = board.getSizeY() * getSquareSize();
         return new Dimension(x, y);
@@ -89,10 +76,7 @@ public class BoardPainter extends JComponent {
     }
 
     private void paintPieces(Graphics g) {
-
-
         paintPiecesNotBeingDragged(g);
-
         paintPieceBeingDragged(g);
     }
 
@@ -100,7 +84,7 @@ public class BoardPainter extends JComponent {
         for (Point point : board.generatePointsTopDownLeftRight()) {
             Piece piece = board.getPiece(point);
             if (piece != null) {
-                if (! dragHelper.isPieceBeingDragged(piece)) {
+                if (!dragHelper.isPieceBeingDragged(piece)) {
                     drawPiece(point, piece, g);
                 }
             }
@@ -112,15 +96,11 @@ public class BoardPainter extends JComponent {
     }
 
 
-
-
     public Point getPointFromGuiXY(int guiX, int guiY) {
         int over = guiX / getSquareSize();
         int down = guiY / getSquareSize();
-        Point ret = new Point(over + 1, down + 1);
-        return ret;
+        return new Point(over + 1, down + 1);
     }
-
 
     public void drawPiece(Point point, Piece piece, Graphics g) {
         final int squareSize = getSquareSize();
@@ -141,8 +121,7 @@ public class BoardPainter extends JComponent {
     }
 
 
-    // "instance" inner class, so it has access to outer
-    private class DragHelper {
+    private class DragHelper { // "instance" inner class, so it has access to outer
         private boolean inDrag = false;
         private Point dragging = null;
         private int draggingCx = 0;
@@ -156,6 +135,7 @@ public class BoardPainter extends JComponent {
         public void triggerRepaint() {
             repaint();
         }
+
         public void paintPieceBeingDragged(Graphics g) {
             if (inDrag) {
                 if (dragging != null) {
@@ -164,9 +144,8 @@ public class BoardPainter extends JComponent {
                 } else {
                     throw new RuntimeException("indrag is true, but dragging is null");
                 }
-            } else {
-                // ok, not in drag mode
-            }
+            }  // ok, not in drag mode
+
 
         }
 
@@ -179,11 +158,7 @@ public class BoardPainter extends JComponent {
         }
 
         public boolean isPieceBeingDragged(Piece piece) {
-            if (piece.equals(getPieceBeingDragged())) {
-                return true;
-            } else {
-                return false;
-            }
+            return piece.equals(getPieceBeingDragged());
         }
         public Point findPointForXY(int guiX, int guiY) {
             return getPointFromGuiXY(guiX, guiY);
@@ -209,7 +184,7 @@ public class BoardPainter extends JComponent {
 
                 @Override
                 public void mouseReleased(MouseEvent me) {
-                    if (! inDrag) {
+                    if (!inDrag) {
                         return;
                     }
 
@@ -226,9 +201,8 @@ public class BoardPainter extends JComponent {
 
                     if (board.isValidToMove(dragging, point)) {
                         board.movePiece(dragging, point);
-                    } else {
-                        // nothing  TODO: better option?
-                    }
+                    }  // nothing  TODO: better option?
+
                     dragging = null;
 
                     triggerRepaint();
@@ -248,4 +222,27 @@ public class BoardPainter extends JComponent {
             };
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

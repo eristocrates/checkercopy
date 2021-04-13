@@ -1,19 +1,13 @@
 package checkers.model;
 
-//@MapKeyCapable -- i.e. is capable of being used as a key in a Map
 public class Checker implements Piece {
-    // quick implementation of "id"
-    private static int globalCheckerId = 1;
-
+    private static int globalCheckerId = 1; // each checker is assigned it's own id as they're created
 
     private final int checkerId = globalCheckerId++;
     private CheckerType checkerType;
-    private CheckerSide checkerSide;
+    private final CheckerSide checkerSide;
 
-
-
-
-    public Checker(CheckerType checkerType, CheckerSide checkerSide) {
+    public Checker(CheckerType checkerType, CheckerSide checkerSide) { // constructor
         super();
         this.checkerType = checkerType;
         this.checkerSide = checkerSide;
@@ -23,15 +17,21 @@ public class Checker implements Piece {
         return checkerSide;
     }
 
+    public CheckerType getType() {
+        return checkerType;
+    }
+
+    // really need a void make king, will add later
+    public void setKing(){
+        this.checkerType = CheckerType.KING;
+    }
     public boolean isKing() {
         return CheckerType.KING.equalsType(checkerType);
     }
 
-    public boolean isSide(CheckerSide querySide) {
+    public boolean isSide(CheckerSide querySide) { // is the parameter side (red or black) the same as the calling side
         return checkerSide.equalsType(querySide);
     }
-
-
 
     @Override
     public String toString() {
@@ -40,7 +40,7 @@ public class Checker implements Piece {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode() { // since we'll only ever need 32 checkers of a color 31 just werks
         final int prime = 31;
         int result = 1;
         result = prime * result + checkerId;
@@ -49,52 +49,53 @@ public class Checker implements Piece {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) // literally the same instance
             return true;
-        if (obj == null)
+        if (obj == null) // empty parameter
             return false;
-        if (getClass() != obj.getClass())
+        if (getClass() != obj.getClass()) // mismatched classes
             return false;
         Checker other = (Checker) obj;
-        if (checkerId != other.checkerId)
-            return false;
-        return true;
+
+        return checkerId == other.checkerId; // different ids
     }
 
     public boolean equalsType(Checker checker) {
         return equals(checker);
     }
 
-    /**
-     * @param s "b", "B", "r", "R" or "-"
-     * @return newly-created Checker or null if s is "-"
-     * @throws RuntimeException if input is invalid
-     */
+    // board population is handled by creating a string
+    // this translates the letters in the string into Checker pieces
     public static Checker createFromSingleString(String s) {
         final Checker ret;
         final CheckerSide side;
         final CheckerType type;
 
-        if (s.equals("b")) {
-            side = CheckerSide.BLACK;
-            type = CheckerType.REGULAR;
-        } else if (s.equals("r")) {
-            side = CheckerSide.RED;
-            type = CheckerType.REGULAR;
-        } else if (s.equals("B")) {
-            side = CheckerSide.BLACK;
-            type = CheckerType.KING;
-        } else if (s.equals("R")) {
-            side = CheckerSide.RED;
-            type = CheckerType.KING;
-        } else if (s.equals("-")) {
-            side = null;
-            type = null;
-        } else {
-            throw new RuntimeException("Cannot convert '" + s + "' to a piece");
+        switch (s) {
+            case "b" -> {
+                side = CheckerSide.BLACK;
+                type = CheckerType.MAN;
+            }
+            case "r" -> {
+                side = CheckerSide.RED;
+                type = CheckerType.MAN;
+            }
+            case "B" -> {
+                side = CheckerSide.BLACK;
+                type = CheckerType.KING;
+            }
+            case "R" -> {
+                side = CheckerSide.RED;
+                type = CheckerType.KING;
+            }
+            case "-" -> {
+                side = null;
+                type = null;
+            }
+            default -> throw new RuntimeException("Cannot convert '" + s + "' to a piece");
         }
 
-        if ((side != null) && (type != null)) {
+        if (side != null) {
             ret = new Checker(type, side);
         } else {
             ret = null;
@@ -102,6 +103,8 @@ public class Checker implements Piece {
 
         return ret;
     }
+
+// funtion to promote to king could easily go here later
 
 
 }

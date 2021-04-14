@@ -21,7 +21,6 @@ public class Checker implements Piece {
         return checkerType;
     }
 
-    // really need a void make king, will add later
     public void setKing(){
         this.checkerType = CheckerType.KING;
     }
@@ -104,7 +103,6 @@ public class Checker implements Piece {
         return ret;
     }
 
-// funtion to promote to king could easily go here later
 
 
 }

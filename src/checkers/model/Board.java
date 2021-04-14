@@ -5,7 +5,6 @@ import java.util.*;
 import java.util.List;
 
 public class Board {
-    // dimensions of the board
     private final int sizeX;
     private final int sizeY;
 
@@ -46,10 +45,10 @@ public class Board {
         return ret;
     }
 
-    public enum Square { // Square is an enum for the state of the square
-        NOT_VALID_COORDINATES,  // 1) NOT_VALID_COORDINATES --outside the bounding rectangle
-        LIGHT,            // 2) NOT_IN_PLAY -- inside the bounding rectangle, but is a light color square
-        DARK;                // 3) IN_PLAY -- inside and valid
+    public enum Square { // Square is an enum for the color of the square
+        NOT_VALID_COORDINATES,  // --outside the board
+        LIGHT,            //  -- inside the board, and is a light color square
+        DARK;                // -- inside the board, and is a dark color square
 
 
         public boolean equalsType(Square other) {
@@ -80,10 +79,6 @@ public class Board {
         } else {
             putPoint2Piece(point, piece);
         }
-
-        // DESIGN: allow a placement to potentially "remove" a piece, because
-        //         we are not going to check.
-        // If we were going to check, it would be:
     }
 
 
@@ -140,7 +135,6 @@ public class Board {
     }
 
     public void unmodifiablePoint2Square() {
-        // TODO: prevent multiple calls
         point2Square = Collections.unmodifiableMap(point2Square);
     }
 
@@ -174,8 +168,7 @@ public class Board {
         for (Point point : generatePointsTopDownLeftRight()) {
             Square val = getSquare(point);
             if (Square.DARK.equalsType(val)) {
-                Piece piece = copy.remove(0); // removing from the top seems better suited to another container type but maybe later oh well lol
-
+                Piece piece = copy.remove(0);
                 // even if piece is null, "place" it (to clear that Point)
                 place(piece, point);
             }

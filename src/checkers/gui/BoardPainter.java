@@ -11,7 +11,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.io.Serial;
 
-public class BoardPainter extends JComponent {
+public class BoardPainter extends JPanel{
     @Serial
     private static final long serialVersionUID = 1L;
     private final Board board;
@@ -24,7 +24,8 @@ public class BoardPainter extends JComponent {
     public BoardPainter(Board board, PiecePaintStrategy piecePainter) { // constructor
         super();
         this.board = board;
-        this.currentPieceSize = 50;
+        this.currentPieceSize = 80;
+        System.out.println(getCurrentPieceSize());
         this.piecePainter = piecePainter;
         dragHelper = new DragHelper(); // track dragging, set up listeners, etc.:
     }
@@ -38,7 +39,7 @@ public class BoardPainter extends JComponent {
     }
 
     @Override
-    public Dimension getPreferredSize() { // pretty sure we can fit resizing window here later
+    public Dimension getPreferredSize() {
         int x = board.getSizeX() * getSquareSize();
         int y = board.getSizeY() * getSquareSize();
         return new Dimension(x, y);
@@ -54,14 +55,8 @@ public class BoardPainter extends JComponent {
 
     private void paintCheckerBoard(Graphics g) {
         ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
-        // AWESOME: if you setRenderingHints, then there is a chance that
-        //          the 1st square will stay black until a refresh!!!
-        // This "useless" fillRect() stops that bug from showing.
-        g.fillRect(0, 0, 1, 1);
-        // Bug from 2006: https://bugs.openjdk.java.net/browse/JDK-6468831
-        // Bug from 2009: https://bugs.openjdk.java.net/browse/JDK-6808062
-        // If you don't set the Hints, then the "K" does not show up on king pieces
+                RenderingHints.VALUE_ANTIALIAS_ON); // gets Ks to show on kings
+        g.fillRect(0, 0, 1, 1); // apparently prevents an antialiasing bug
 
 
         final int squareSize = getSquareSize();
@@ -144,7 +139,7 @@ public class BoardPainter extends JComponent {
                 } else {
                     throw new RuntimeException("indrag is true, but dragging is null");
                 }
-            }  // ok, not in drag mode
+            }
 
 
         }
@@ -188,12 +183,8 @@ public class BoardPainter extends JComponent {
                         return;
                     }
 
-
                     // When mouse is released, clear inDrag no matter what
-                    // But for now, don't clear the 'dragging' variable
-
                     inDrag = false;
-                    // dragging = null;
 
                     final int x = me.getX();
                     final int y = me.getY();
@@ -201,7 +192,7 @@ public class BoardPainter extends JComponent {
 
                     if (board.isValidToMove(dragging, point)) {
                         board.movePiece(dragging, point);
-                    }  // nothing  TODO: better option?
+                    }
 
                     dragging = null;
 

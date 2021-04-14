@@ -81,7 +81,7 @@ public class GameStrategyCheckers implements GameStrategy {
 
     private boolean darkerTurn = true;
 
-    private CheckerSide currentTurn;
+    private static CheckerSide currentTurn = CheckerSide.BLACK;
     private Point forwardLeftDiagonal;
     private Point forwardRightDiagonal;
     private Point forwardLeftLanding;
@@ -100,6 +100,7 @@ public class GameStrategyCheckers implements GameStrategy {
     private boolean backwardRightMove;
     private boolean backwardLeftJump;
     private boolean backwardRightJump;
+    private static boolean gameOver = false;
     List<Point> pointsWithJumps = new ArrayList<>();
 
     // check every piece to see if one has a jump and only allow that one to be moved
@@ -114,6 +115,10 @@ public class GameStrategyCheckers implements GameStrategy {
             }
         }
         return ret;
+    }
+
+    public static boolean getGameOver(){
+        return gameOver;
     }
 
     public void flagPossibleMoves(Point point){
@@ -200,8 +205,7 @@ public class GameStrategyCheckers implements GameStrategy {
             }
         }
     }
-    // somehow also needs to deal with the possibility of multiple possible jumps
-    // maybe it returns a list of pieces with mandatory jumps, flags that there is a mandatory move and canmovepieceatpoint checks if point is in the list
+
     @Override
     public boolean canMovePieceAtPoint(Point point) {
         pointsWithJumps.clear();
@@ -318,38 +322,25 @@ public class GameStrategyCheckers implements GameStrategy {
                     board.putPoint2Piece(to, piece);
 
 
-                    if (!over.equals(new Point(0, 0))){
+                    if (!over.equals(new Point(0, 0))){ // a jump is occurring
+                        CheckerSide opponentColor = getPiece(over).getSide();
                         board.removePoint2Piece(over);
-                        pointsWithJumps.clear();
-                        for (Point pointInColor : generatePointsInColor(getPiece(to).getSide())) { // loops through every point of the same color as parameter
-                            flagPossibleMoves(pointInColor);
-                            if (forwardLeftJump || forwardRightJump || backwardLeftJump || backwardRightJump) { // if a piece is found to have a jump
-                                pointsWithJumps.add(pointInColor);
-                            }
+                        flagPossibleMoves(to);
+
+                        List<Point> piecesLeft = generatePointsInColor(opponentColor);
+                        if (piecesLeft.size() == 0) { // check if any of the opponent's pieces remain
+                            gameOver = true; // literally pulling hair out trying to get this up the hierarchy to the jframe.
+                            // if it can't be figured out then skip a restart flag later
                         }
                     }
 
-                    /*
-                    if (jumpMandate) {
-                        pointsWithJumps.clear();
-                        for (Point pointInColor : generatePointsInColor(getPiece(to).getSide())) { // loops through every point of the same color as parameter
-                            flagPossibleMoves(pointInColor);
-                            if (forwardLeftJump || forwardRightJump || backwardLeftJump || backwardRightJump) { // if a piece is found to have a jump
-                                pointsWithJumps.add(pointInColor);
-                            }
-                        }
-                    }
-                    */
-                    if (pointsWithJumps.size() == 0) { // only swaps turns after all mandatory jumps
+                    if (!forwardLeftJump && !forwardRightJump && !backwardLeftJump && !backwardRightJump) { // if no jump was found after last jump, switch turn
                         darkerTurn = !darkerTurn;
                     }
                 }
             } else {
                 throw new RuntimeException("Programmer error - point not available, point=" + to);
             }
-            // likely could add an if for a capture here later
-            // could also alternate flags for turn completion?
-            // king promotion could def happen here
         } else {
             throw new RuntimeException("Programmer error - no piece at original, point=" + from);
         }
@@ -357,11 +348,8 @@ public class GameStrategyCheckers implements GameStrategy {
 
     @Override
     public boolean isValidToMove(Point from, Point to) { // checks if a piece is moveable
-        // later should check if piece is surrounded by other pieces & the border
-        // maybe enforce turn order here? an alternating flag should work
         if (getPiece(from) != null) {
             if (isAvailableTargetForMove(from, to)) {
-                //  TODO: rule check too
                 return true;
             }
         }

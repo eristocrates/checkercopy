@@ -29,7 +29,6 @@ public class BoardFactoryCheckers { // factory for making the checker board
         Board ret = new Board(gameStrategy, size, size);
         gameStrategy.setBoard(ret);
 
-        // it seems everyone agrees that (1,1) is not in play:
         Board.Square val = Board.Square.LIGHT;
         for (Point point : ret.generatePointsTopDownLeftRight()) {
             ret.putPoint2Square(point, val);

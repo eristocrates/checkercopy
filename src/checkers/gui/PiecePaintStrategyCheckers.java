@@ -20,7 +20,6 @@ public class PiecePaintStrategyCheckers implements PiecePaintStrategy {
         Board.Square square = board.getSquare(point);
 
         // The official rules say pieces go on dark.
-
         boolean piecesOnDark = true;// idk why there's an option for playing pieces on white, might remove later
         if (square.equalsType(Board.Square.LIGHT)) { // might add flag for black/white or black/red or green/white later if time permits
             if (piecesOnDark) {
